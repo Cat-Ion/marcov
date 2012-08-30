@@ -151,14 +151,12 @@ markov_t *markov_insert(markov_t *m, markov_t *new) {
 
 /* Get a word that might follow the wordlist in w */
 char *markov_next(markov_t *m, wordlist_t *w) {
-	markov_t *old, *nx = m;
+	markov_t *nx = m;
 	if(w->num > m->order)
 		return NULL;
 	for(int i = 0; i < w->num; i++) {
-		old = nx;
 		nx = markov_find(nx, w->w[i]);
 		if(!nx) {
-			printf("Returning NULL because markovfind([%d,%s], %s) returned NULL\n", old->order, old->key, w->w[i]);
 			return NULL;
 		}
 	}
