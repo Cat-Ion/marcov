@@ -1,3 +1,4 @@
+#include <zlib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -55,18 +56,18 @@ int twalk_nodedumper(const void *node, VISIT v, int depth, void *data) {
 	struct {
 		int num, maxnum;
 		char **ptrs;
-		FILE *f;
+		gzFile f;
 	} *ptrs = data;
 
 	if(v == postorder || v == leaf) {
 		char **str = bsearch(m->key, ptrs->ptrs, ptrs->num, sizeof(char *), strptrcmp);
 		int stridx = str - ptrs->ptrs;
 		
-		fwrite(&stridx, sizeof(int), 1, ptrs->f);
-		fwrite(&(m->order), sizeof(int), 1, ptrs->f);
-		fwrite(&(m->total), sizeof(int), 1, ptrs->f);
+		gzwrite(ptrs->f, &stridx, sizeof(int));
+		gzwrite(ptrs->f, &(m->order), sizeof(int));
+		gzwrite(ptrs->f, &(m->total), sizeof(int));
 		twalk(m->tree, twalk_nodedumper, ptrs);
-		fwrite(&sep, sizeof(int), 1, ptrs->f);
+		gzwrite(ptrs->f, &sep, sizeof(int));
 	}
 	return 1;
 }
@@ -225,55 +226,58 @@ markov_t *markov_search(markov_t *m, char *key) {
 	return *f;
 }
 
-void markov_dump(void *strings, markov_t *m, FILE *f) {
+void markov_dump(void *strings, markov_t *m, int fd) {
 	int nullstr = -1, sep = -2;
-	if(!f)
-		return;
+	gzFile gzf = gzdopen(fd, "wb");
 
 	struct {
 		int num, maxnum;
 		char **ptrs;
-		FILE *f;
+		gzFile f;
 	} ptrs;
 	ptrs.num = 0;
 	ptrs.maxnum = 1;
 	ptrs.ptrs = malloc(sizeof(char *));
-	ptrs.f = f;
+	ptrs.f = gzf;
 
 	createstringarray(strings, &ptrs);
 
 	for(int i = 0; i < ptrs.num; i++) {
 		int length = strlen(ptrs.ptrs[i]);
-		fwrite(&length, sizeof(int), 1, f);
-		fwrite(ptrs.ptrs[i], length, 1, f);
+		gzwrite(gzf, &length, sizeof(int));
+		gzwrite(gzf, ptrs.ptrs[i], length);
 	}
-	fwrite(&sep, sizeof(int), 1, f);
+	gzwrite(gzf, &sep, sizeof(int));
 
-	fwrite(&nullstr, sizeof(int), 1, f);
-	fwrite(&(m->order), sizeof(int), 1, f);
-	fwrite(&(m->total), sizeof(int), 1, f);
+	gzwrite(gzf, &nullstr, sizeof(int));
+	gzwrite(gzf, &(m->order), sizeof(int));
+	gzwrite(gzf, &(m->total), sizeof(int));
 	markov_nodedumper(m, &ptrs);
-	fwrite(&sep, sizeof(int), 1, f);
+	gzwrite(gzf, &sep, sizeof(int));
+	gzflush(gzf, Z_FINISH);
 	
 	free(ptrs.ptrs);
 }
 
-markov_t *markov_loadrec(char **strings, int num, FILE *f) {
+markov_t *markov_loadrec(char **strings, int num, gzFile f) {
 	int nullstr = -1,
 		sep = -2;
 
-	int idx, order, total;
+	int idx = -1, order = -1, total = 0;
 	char *key;
 	
-	fread(&idx, sizeof(int), 1, f);
+	if(gzread(f, &idx, sizeof(int)) < sizeof(int)) {
+		printf("Fuck.\n");
+		exit(EXIT_FAILURE);
+	}
 	if(idx == sep)
 		return 0;
 	if(idx == nullstr)
 		key = NULL;
 	else
 		key = strings[idx];
-	fread(&order, sizeof(int), 1, f);
-	fread(&total, sizeof(int), 1, f);
+	gzread(f, &order, sizeof(int));
+	gzread(f, &total, sizeof(int));
 
 	markov_t *m = malloc(sizeof(markov_t));
 	m->key = key;
@@ -285,12 +289,12 @@ markov_t *markov_loadrec(char **strings, int num, FILE *f) {
 		if(!new)
 			break;
 		markov_insert(m, new);
-		new = markov_find(m, new->key);
 	}
 	return m;
 }
 
-void markov_load(void **strings, markov_t **m, FILE *file) {
+void markov_load(void **strings, markov_t **m, int fd) {
+	gzFile f = gzdopen(fd, "rb");
 	int sep = -2;
 	int strnum = 0, strnummax = 1;
 	
@@ -298,7 +302,7 @@ void markov_load(void **strings, markov_t **m, FILE *file) {
 	while(1) {
 		int len;
 		char c[4096];
-		fread(&len, sizeof(int), 1, file);
+		gzread(f, &len, sizeof(int));
 		if(len == sep)
 			break;
 
@@ -310,12 +314,12 @@ void markov_load(void **strings, markov_t **m, FILE *file) {
 			strarr = tmp;
 		}
 
-		fread(c, 1, len, file);
+		gzread(f, c, len);
 		c[len]='\0';
 		strarr[strnum++] = stringidx(strings, c);
 	}
 
-	*m = markov_loadrec(strarr, strnum, file);
+	*m = markov_loadrec(strarr, strnum, f);
 
 	free(strarr);
 }

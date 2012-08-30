@@ -1,5 +1,5 @@
 CFLAGS+=-std=c99 -Wall -pedantic -D_GNU_SOURCE -g
-LDFLAGS+=-lrt
+LDFLAGS+=-lrt -lz
 
 BIN=gen run
 

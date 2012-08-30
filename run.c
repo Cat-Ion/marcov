@@ -15,7 +15,7 @@ int main() {
 	srand(t.tv_nsec);
 	
 	markov_t *m = NULL;
-	markov_load(&strings, &m, stdin);
+	markov_load(&strings, &m, 0);
 
 	wordlist_t *wl = markov_randomstart(m, NULL);
 	for(int i = 0; (i < 128 || wl->w[wl->num-1][0] != '\n') && wl->w[wl->num-1]; i++) {

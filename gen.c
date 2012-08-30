@@ -4,7 +4,7 @@
 #include "search.h"
 #include "markov.h"
 
-#define ORDER 2
+#define ORDER 4
 
 int main() {
 	char buf[1024];
@@ -63,6 +63,6 @@ int main() {
 			while(buf[++i] == ' ');
 		} while(1);
 	}
-	markov_dump(strings, &m, stdout);
+	markov_dump(strings, &m, 1);
 	return 0;
 }
