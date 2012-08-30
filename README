@@ -1,0 +1,5 @@
+$ make
+$ ./gen < a/book/or/something > corpus
+$ ./run < corpus
+
+For more, take a look at gen.c and run.c.
