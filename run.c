@@ -12,8 +12,7 @@ int main() {
 
 	struct timespec t;
 	clock_gettime(CLOCK_MONOTONIC, &t);
-	//srand(t.tv_nsec);
-	srand(0);
+	srand(t.tv_nsec);
 	
 	markov_t *m = NULL;
 	markov_load(&strings, &m, stdin);
