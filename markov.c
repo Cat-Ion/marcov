@@ -198,9 +198,9 @@ markov_t *markov_insert(markov_t *m, markov_t *new) {
 /* Get a word that might follow the wordlist in w */
 char *markov_next(markov_t *m, wordlist_t *w) {
 	markov_t *nx = m;
-	if(w->num > m->order)
+	if(w && w->num > m->order)
 		return NULL;
-	for(int i = 0; i < w->num; i++) {
+	if(w) for(int i = 0; i < w->num; i++) {
 		nx = markov_find(nx, w->w[i]);
 		if(!nx) {
 			return NULL;
