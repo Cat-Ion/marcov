@@ -4,7 +4,7 @@
 #include "search.h"
 #include "markov.h"
 
-#define ORDER 4
+#define ORDER 2
 
 int main() {
 	char buf[1024];
@@ -20,7 +20,7 @@ int main() {
 		wl.w[i] = NULL;
 	}
 	
-	while(fgets(buf + offset, 1024, stdin)) {
+	while(fgets(buf + offset, 1024 - offset, stdin)) {
 		i = 0;
 		do {
 			start = i;
