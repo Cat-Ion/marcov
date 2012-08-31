@@ -5,6 +5,14 @@
 #include "search.h"
 #include "markov.h"
 
+markov_t *
+markov_find(markov_t *m, char *key);
+markov_t *
+markov_insert(markov_t *m, markov_t *new);
+markov_t *
+markov_search(markov_t *m, char *key);
+
+
 /* Comparison function for tsearch/tfind */
 int markovkeycomp(const void *a, const void *b) {
 	return strcmp(((markov_t *)a)->key, ((markov_t *)b)->key);
@@ -141,6 +149,44 @@ markov_t *markov_find(markov_t *m, char *key) {
 	else {
 		return NULL;
 	}
+}
+
+char *markov_getline(markov_t *m) {
+	int len = 0, maxlen = 1024, i;
+	char *out = malloc(maxlen);
+	char *nl = "\n";
+	wordlist_t wl = (wordlist_t) { .num = 1, .w = &nl },
+		   *start;
+	start = markov_randomstart(m, &wl);
+	if(!start) {
+		free(out);
+		return NULL;
+	}
+	wl = *start;
+	free(start);
+	i = 0;
+	out[0] = '\0';
+	do {
+		if(i < m->order - 1) {
+			i++;
+		} else {
+			int j;
+			char *w = markov_next(m, &wl);
+			for(j = 1; j < wl.num; j++)
+				wl.w[j-1] = wl.w[j];
+			wl.w[j-1] = w;
+		}
+		while(len + strlen(wl.w[i]) >= maxlen) {
+			char *tmp = realloc(out, 2 * maxlen);
+			if(!tmp) {
+				exit(EXIT_FAILURE);
+			}
+			maxlen *= 2;
+			out = tmp;
+		}
+		len += sprintf(out + len, "%s%s", (len > 0 && wl.w[i][0] != '\n') ? " " : "", wl.w[i]);
+	} while(strcmp("\n", wl.w[i]));
+	return out;
 }
 
 /* Insert a new element to a chain. */

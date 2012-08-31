@@ -31,17 +31,12 @@ int main(int argc, char **argv) {
 		wl = markov_randomstart(m, NULL);
 	}
 	for(int i = 0; i < limit; i++) {
-		char *nx = markov_next(m, wl);
-		if(!nx) {
+		char *line = markov_getline(m);
+		if(!line) {
 			break;
 		}
-		printf("%s", nx);
-		if(nx[0]!='\n') putchar(' ');
-		for(int j = 1; j < m->order; j++) {
-			wl->w[j-1] = wl->w[j];
-		}
-		wl->w[m->order-1] = nx;
+		printf("%s", line);
+		free(line);
 	}
-	printf("\n");
 	return 0;
 }
