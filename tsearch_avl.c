@@ -174,19 +174,20 @@ void *tsearch(const void *key, void **rootp,
 	return insert((void*)rootp, key, compar, &new);
 }
 
-static void walk(const struct node *r, int (*action)(const void *, VISIT, int, void *), int d, void *data)
+static int walk(const struct node *r, int (*action)(const void *, VISIT, int, void *), int d, void *data)
 {
 	if (r == 0)
-		return;
+		return 1;
 	if (r->left == 0 && r->right == 0) {
-		if(!action(r, leaf, d, data)) return;
+		if(!action(r, leaf, d, data)) return 0;
 	} else {
-		if(!action(r, preorder, d, data)) return;
-		walk(r->left, action, d+1, data);
-		if(!action(r, postorder, d, data)) return;
-		walk(r->right, action, d+1, data);
-		if(!action(r, endorder, d, data)) return;
+		if(!action(r, preorder, d, data)) return 0;
+		if(!walk(r->left, action, d+1, data)) return 0;
+		if(!action(r, postorder, d, data)) return 0;
+		if(!walk(r->right, action, d+1, data)) return 0;
+		if(!action(r, endorder, d, data)) return 0;
 	}
+	return 1;
 }
 
 void twalk(const void *root, int (*action)(const void *, VISIT, int, void *), void *data)
