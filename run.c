@@ -7,7 +7,13 @@
 #include "markov.h"
 #define ORDER 2
 
-int main() {
+int main(int argc, char **argv) {
+	int limit = 128;
+
+	if(argc > 1) {
+		limit = atoi(argv[1]);
+	}
+
 	void *strings = NULL;
 
 	struct timespec t;
@@ -17,10 +23,20 @@ int main() {
 	markov_t *m = NULL;
 	markov_load(&strings, &m, 0);
 
-	wordlist_t *wl = markov_randomstart(m, NULL);
-	for(int i = 0; (i < 128 || wl->w[wl->num-1][0] != '\n') && wl->w[wl->num-1]; i++) {
+	char *nl = stringidx(&strings, "\n");
+	wordlist_t nlstart = (wordlist_t) {.num = 1, .w = &nl};
+	wordlist_t *wl = NULL;
+	wl = markov_randomstart(m, &nlstart);
+	if(!wl) {
+		wl = markov_randomstart(m, NULL);
+	}
+	for(int i = 0; i < limit; i++) {
 		char *nx = markov_next(m, wl);
-		printf("%s ", nx);
+		if(!nx) {
+			break;
+		}
+		printf("%s", nx);
+		if(nx[0]!='\n') putchar(' ');
 		for(int j = 1; j < m->order; j++) {
 			wl->w[j-1] = wl->w[j];
 		}
