@@ -17,7 +17,13 @@ markov.o: markov.c
 
 tsearch_avl.o: tsearch_avl.c
 
-clean:
-	rm -rf *.o $(BIN)
+examples: examples/bible.mrk
+	./run 256 < examples/bible.mrk
 
-.PHONY: clean
+examples/bible.mrk: $(BIN) examples/bible.txt
+	./gen < examples/bible.txt > examples/bible.mrk
+
+clean:
+	rm -rf *.o $(BIN) examples/*.mrk
+
+.PHONY: clean examples
