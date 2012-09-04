@@ -181,11 +181,9 @@ static int walk(const struct node *r, int (*action)(const void *, VISIT, int, vo
 	if (r->left == 0 && r->right == 0) {
 		if(!action(r, leaf, d, data)) return 0;
 	} else {
-		if(!action(r, preorder, d, data)) return 0;
 		if(!walk(r->left, action, d+1, data)) return 0;
 		if(!action(r, postorder, d, data)) return 0;
 		if(!walk(r->right, action, d+1, data)) return 0;
-		if(!action(r, endorder, d, data)) return 0;
 	}
 	return 1;
 }
