@@ -6,17 +6,18 @@
 
 #define ORDER 2
 
-int main() {
+int main(int argc, char **argv) {
+	int order = argc > 1 ? atoi(argv[1]) : ORDER;
 	char buf[1024];
 	int i, start, offset = 0;
 	int addnewline = 0;
 
 	void *strings = NULL;
-	wordlist_t wl = { .num = ORDER + 1, .w = calloc((ORDER + 1), sizeof(char *)) };
+	wordlist_t wl = { .num = order + 1, .w = calloc((order + 1), sizeof(char *)) };
 
-	markov_t m = { .key = NULL, .order = ORDER, .total = 0, .tree = NULL };
+	markov_t m = { .key = NULL, .order = order, .total = 0, .tree = NULL };
 
-	for(i = 0; i < ORDER + 1; i++) {
+	for(i = 0; i < order + 1; i++) {
 		wl.w[i] = NULL;
 	}
 	
@@ -44,18 +45,18 @@ int main() {
 			buf[i] = '\0';
 
 			char *word = stringidx(&strings, buf + start);
-			for(int j = 0; j < ORDER; j++)
+			for(int j = 0; j < order; j++)
 				wl.w[j] = wl.w[j+1];
-			wl.w[ORDER] = word;
+			wl.w[order] = word;
 			if(wl.w[0]) {
 				markov_add(&m, &wl);
 			}
 
 			if(addnewline) {
 				char *word = stringidx(&strings, "\n");
-				for(int j = 0; j < ORDER; j++)
+				for(int j = 0; j < order; j++)
 					wl.w[j] = wl.w[j+1];
-				wl.w[ORDER] = word;
+				wl.w[order] = word;
 				if(wl.w[0])
 					markov_add(&m, &wl);
 				break;
