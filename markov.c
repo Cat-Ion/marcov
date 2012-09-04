@@ -404,3 +404,8 @@ void markov_load(void **strings, markov_t **m, int fd) {
 
 	free(strarr);
 }
+
+void markov_walk(markov_t *m, int (*function)(const void *, VISIT, int, void *), void *data) {
+	twalk(m->tree, function, data);
+}
+

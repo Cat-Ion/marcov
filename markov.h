@@ -29,5 +29,6 @@ char *
 markov_next(markov_t *m, wordlist_t *w);
 wordlist_t *
 markov_randomstart(markov_t *m, wordlist_t *start);
-
+void
+markov_walk(markov_t *m, int (*function)(const void *, VISIT, int, void *), void *data);
 #endif
