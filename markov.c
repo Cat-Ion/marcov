@@ -90,6 +90,9 @@ int twalk_printchildren(const void *node, VISIT v, int depth, void *data) {
 /* Choose a random child, weighted by their 'total' member */
 markov_t *markov_choose(markov_t *m) {
 	struct { int n; markov_t *end; } d;
+	if(!m) {
+		return NULL;
+	}
 	d.n = rand() % m->total;
 	d.end = NULL;
 	twalk(m->tree, twalk_choose, &d);
@@ -174,6 +177,22 @@ markov_t *markov_find(markov_t *m, char *key) {
 	}
 }
 
+markov_t *markov_find_prefix(markov_t *m, wordlist_t *w, int len) {
+	if(!m || !w || len < 0 || len > m->order || len > w->num) {
+		return NULL;
+	}
+
+	markov_t *nx = m;
+	for(int i = 0; i < w->num; i++) {
+		nx = markov_find(nx, w->w[i]);
+		if(!nx) {
+			return NULL;
+		}
+	}
+	
+	return nx;
+}
+
 char *markov_getline(markov_t *m) {
 	int len = 0, maxlen = 1024, i;
 	char *out = malloc(maxlen);
@@ -220,17 +239,12 @@ markov_t *markov_insert(markov_t *m, markov_t *new) {
 
 /* Get a word that might follow the wordlist in w */
 char *markov_next(markov_t *m, wordlist_t *w) {
-	markov_t *nx = m;
-	if(w && w->num > m->order)
+	markov_t *r;
+	if(m) {
+		return markov_choose(markov_find_prefix(m, w, m->order));
+	} else {
 		return NULL;
-	if(w) for(int i = 0; i < w->num; i++) {
-		nx = markov_find(nx, w->w[i]);
-		if(!nx) {
-			return NULL;
-		}
 	}
-	
-	return markov_choose(nx)->key;
 }
 
 /* Return number of occurences of a combination */
