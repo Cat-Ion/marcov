@@ -16,6 +16,8 @@ stringidx(void **l, char *s);
 void
 markov_add(markov_t *m, wordlist_t *w);
 void
+markov_dec(markov_t *m, wordlist_t *w);
+void
 markov_dump(void *strings, markov_t *m, int fd);
 char *
 markov_getline(markov_t *m);

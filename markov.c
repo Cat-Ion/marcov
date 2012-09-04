@@ -141,6 +141,29 @@ void markov_add(markov_t *m, wordlist_t *w) {
 	markov_add(f, w);
 }
 
+/* Decrement the combination, remove if necessary */
+void markov_dec(markov_t *m, wordlist_t *w) {
+	markov_t *f = NULL;
+
+	if(w->num < m->order)
+		return;
+
+	m->total--;
+
+	/* Just a word entry, no tree. Increase count and return. */
+	if(m->order == -1)
+		return;
+
+	/* Find a matching follower */
+	f = markov_search(m, w->w[w->num - 1 - m->order]);
+
+	markov_dec(f, w);
+
+	if(f->total == 0) {
+		tdelete(w->w[w->num - 1 - m->order], &(m->tree), markovkeycomp);
+	}
+}
+
 /* Find a key under a markov node, if it exists. */
 markov_t *markov_find(markov_t *m, char *key) {
 	markov_t **f = tfind(&key, &(m->tree), markovkeycomp);
