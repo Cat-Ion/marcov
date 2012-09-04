@@ -1,5 +1,7 @@
 #ifndef _MARKOV_H
 #define _MARKOV_H
+#include "search.h"
+
 typedef struct {
 	int num;
 	char **w;
