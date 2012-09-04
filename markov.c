@@ -239,9 +239,11 @@ markov_t *markov_insert(markov_t *m, markov_t *new) {
 
 /* Get a word that might follow the wordlist in w */
 char *markov_next(markov_t *m, wordlist_t *w) {
-	markov_t *r;
+	if(!m)
+		return NULL;
+	m = markov_choose(markov_find_prefix(m, w, m->order));
 	if(m) {
-		return markov_choose(markov_find_prefix(m, w, m->order));
+		return m->key;
 	} else {
 		return NULL;
 	}
