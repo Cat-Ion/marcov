@@ -183,8 +183,8 @@ marcov_t *marcov_find_prefix(marcov_t *m, wordlist_t *w, int len) {
 	}
 
 	marcov_t *nx = m;
-	for(int i = 0; i < w->num; i++) {
-		nx = marcov_find(nx, w->w[i]);
+	for(int i = 0; i < len; i++) {
+		nx = marcov_find(nx, w->w[w->num - len + i]);
 		if(!nx) {
 			return NULL;
 		}
