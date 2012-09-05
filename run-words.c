@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "search.h"
-#include "markov.h"
+#include "marcov.h"
 #define ORDER 2
 
 int main(int argc, char **argv) {
@@ -20,18 +20,18 @@ int main(int argc, char **argv) {
 	clock_gettime(CLOCK_MONOTONIC, &t);
 	srand(t.tv_nsec);
 	
-	markov_t *m = NULL;
-	markov_load(&strings, &m, 0);
+	marcov_t *m = NULL;
+	marcov_load(&strings, &m, 0);
 
 	char *nl = stringidx(&strings, "\n");
 	wordlist_t nlstart = (wordlist_t) {.num = 1, .w = &nl};
 	wordlist_t *wl = NULL;
-	wl = markov_randomstart(m, &nlstart);
+	wl = marcov_randomstart(m, &nlstart);
 	if(!wl) {
-		wl = markov_randomstart(m, NULL);
+		wl = marcov_randomstart(m, NULL);
 	}
 	for(int i = 0; i < limit; i++) {
-		char *word = markov_next(m, wl);
+		char *word = marcov_next(m, wl);
 		if(!word) {
 			break;
 		}

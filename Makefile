@@ -6,10 +6,10 @@ LIB=libmarcov.a
 
 all: $(BIN) $(LIB)
 
-$(BIN):%:markov.o tsearch_avl.o %.o
+$(BIN):%:marcov.o tsearch_avl.o %.o
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
-libmarcov.a: markov.o tsearch_avl.o
+libmarcov.a: marcov.o tsearch_avl.o
 	ar rcs $@ $?
 
 examples: examples/bible.mrk run-lines

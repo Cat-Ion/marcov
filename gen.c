@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "search.h"
-#include "markov.h"
+#include "marcov.h"
 
 #define ORDER 2
 
@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	void *strings = NULL;
 	wordlist_t wl = { .num = order + 1, .w = calloc((order + 1), sizeof(char *)) };
 
-	markov_t m = { .key = NULL, .order = order, .total = 0, .tree = NULL };
+	marcov_t m = { .key = NULL, .order = order, .total = 0, .tree = NULL };
 
 	for(i = 0; i < order + 1; i++) {
 		wl.w[i] = NULL;
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 				wl.w[j] = wl.w[j+1];
 			wl.w[order] = word;
 			if(wl.w[0]) {
-				markov_add(&m, &wl);
+				marcov_add(&m, &wl);
 			}
 
 			if(addnewline) {
@@ -58,12 +58,12 @@ int main(int argc, char **argv) {
 					wl.w[j] = wl.w[j+1];
 				wl.w[order] = word;
 				if(wl.w[0])
-					markov_add(&m, &wl);
+					marcov_add(&m, &wl);
 				break;
 			}
 			while(buf[++i] == ' ');
 		} while(1);
 	}
-	markov_dump(strings, &m, 1);
+	marcov_dump(strings, &m, 1);
 	return 0;
 }
