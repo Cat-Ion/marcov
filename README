@@ -1,6 +1,7 @@
 $ make
 $ ./gen < a/book/or/something > corpus
-$ ./run < corpus
+$ ./run-lines 5 < corpus
+$ ./run-words 20 < corpus
 
 $ make examples
 
